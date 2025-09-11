@@ -149,7 +149,7 @@ const CollectionPage = () => {
 
       {/* Main content */}
       <div className="flex-grow p-4">
-        <h2 className="text-2xl uppercase mb-4">All Collection!</h2>
+        <h2 className="text-2xl md:text-start text-center uppercase md:pl-4">All Collection!</h2>
         <SortOptions />
         <ProductGrid products={products} />
       </div>

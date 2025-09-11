@@ -192,9 +192,12 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-        <div className="mt-10 ">
+        <div className="mt-10  ">
             <h2 className="text-2xl text-center font-bold mb-6 ">You May Also Like!</h2>
+            
+
               <ProductGird products={similarProducts} />
+            
         </div>
       </div>
     </div>

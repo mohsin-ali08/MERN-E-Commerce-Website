@@ -1,5 +1,6 @@
 import { FiX } from "react-icons/fi";
 import CartContent from "../Cart/CartContent";
+import { useNavigate } from "react-router-dom";
 
 
 const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
@@ -9,7 +10,11 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
     { name: "Product 2", qty: 2, price: 35 },
     { name: "Product 3", qty: 1, price: 50 },
   ];
-
+  
+  const navigate = useNavigate();
+  const handleCheckout = () => {
+   navigate("/checkOut")
+  }
   return (
     <div>
       {/* Overlay */}
@@ -41,7 +46,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
 
         {/* Footer */}
         <div className="p-4 border-t">
-          <button className="w-full bg-black text-white py-2 rounded-lg transition">
+          <button onClick={handleCheckout} className="w-full bg-black text-white py-2 rounded-lg transition">
             Checkout
           </button>
           <p className="text-sm tracking-tighter text-gray-500 mt-2 text-center">
