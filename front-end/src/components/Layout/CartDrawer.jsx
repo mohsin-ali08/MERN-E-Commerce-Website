@@ -14,7 +14,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
 
   const handleCheckout = () => {
     toggleCartDrawer(); // drawer close
-    navigate("/checkOut"); // navigate
+    navigate("/checkout"); // navigate
   };
 
   return (
