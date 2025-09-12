@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Select } from "antd";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-const { Option } = Select;
+// Stripe test key (replace later with your own)
+const stripePromise = loadStripe(
+  "pk_test_51S6dXOFYVtn3P4ApL7GP10blKsJx2HQQxgsmNizNitzsXzFSZjvzJTxlPyKXEB0k8PXoKwg3KbQWnNupPyVVwwdz00bMp0LB3r"
+);
 
 const cart = {
   products: [
@@ -28,11 +33,42 @@ const cart = {
       image: "https://picsum.photos/200/300?random=3",
     },
   ],
-  totalPrice: 192,
+  totalPrice: 100,
+};
+
+// Stripe Payment Form
+const StripePaymentForm = ({ amount, onSuccess }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    // demo only
+    alert("This is a demo. Normally paymentIntent confirm hota yahan.");
+    onSuccess({ id: "demo_txn_123", amount });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="p-4 border rounded-lg bg-white shadow-sm">
+        <CardElement className="p-3 border rounded" />
+      </div>
+      <button
+        type="submit"
+        disabled={!stripe}
+        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium shadow-md transition"
+      >
+        Pay ${amount}
+      </button>
+    </form>
+  );
 };
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [checkoutId, setCheckoutId] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     firstName: "",
     lastName: "",
@@ -43,144 +79,210 @@ const Checkout = () => {
     phone: "",
   });
 
-  const countries = ["United States", "Pakistan", "United Kingdom", "Canada", "Australia"];
-
-  const handleChange = (e) => {
-    setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
-  };
-
-  const handleCountryChange = (value) => {
-    setShippingAddress({ ...shippingAddress, country: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleCreateCheckout = (e) => {
     e.preventDefault();
-    console.log("Shipping Address:", shippingAddress);
-    navigate("/success");
+    setCheckoutId("stripe-checkout");
+  };
+
+  const handlePaymentSuccess = (details) => {
+    console.log("Payment Successful ", details);
+    navigate("/order-confirmation");
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-10 px-6">
-      {/* Left Section - Shipping Form */}
-      <div className="bg-white shadow-md rounded-2xl p-6">
-        <h2 className="text-xl font-semibold mb-6 uppercase">Checkout</h2>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Contact Details */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-12 px-6">
+      {/* Left Section */}
+      <div className="bg-white rounded-lg shadow-md p-8 border">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
+          Checkout
+        </h1>
+        <form onSubmit={handleCreateCheckout} className="space-y-6">
+          {/* Contact */}
           <div>
-            <h3 className="text-md font-semibold mb-2">Contact Details</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">
+              Contact Details
+            </h3>
             <input
               type="email"
-              value="mohsin@gmail.com"
-              readOnly
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-not-allowed"
+              value="mohsinalisurhio08@gmail.com"
+              className="w-full p-3 border rounded-lg bg-gray-100 text-gray-600"
+              disabled
             />
           </div>
 
-          {/* First & Last Name */}
-            <h3 className="text-md font-semibold">Delivery</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Delivery */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">
+              Delivery Address
+            </h3>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="First Name"
+                className="w-full p-3 border rounded-lg"
+                required
+                value={shippingAddress.firstName}
+                onChange={(e) =>
+                  setShippingAddress({
+                    ...shippingAddress,
+                    firstName: e.target.value,
+                  })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                className="w-full p-3 border rounded-lg"
+                required
+                value={shippingAddress.lastName}
+                onChange={(e) =>
+                  setShippingAddress({
+                    ...shippingAddress,
+                    lastName: e.target.value,
+                  })
+                }
+              />
+            </div>
             <input
               type="text"
-              name="firstName"
-              placeholder="First Name"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 "
-              onChange={handleChange}
+              placeholder="Address"
+              className="w-full p-3 border rounded-lg mb-4"
+              required
+              value={shippingAddress.address}
+              onChange={(e) =>
+                setShippingAddress({
+                  ...shippingAddress,
+                  address: e.target.value,
+                })
+              }
+            />
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="City"
+                className="w-full p-3 border rounded-lg"
+                required
+                value={shippingAddress.city}
+                onChange={(e) =>
+                  setShippingAddress({
+                    ...shippingAddress,
+                    city: e.target.value,
+                  })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Postal Code"
+                className="w-full p-3 border rounded-lg"
+                required
+                value={shippingAddress.postalCode}
+                onChange={(e) =>
+                  setShippingAddress({
+                    ...shippingAddress,
+                    postalCode: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Country"
+              className="w-full p-3 border rounded-lg mb-4"
+              required
+              value={shippingAddress.country}
+              onChange={(e) =>
+                setShippingAddress({
+                  ...shippingAddress,
+                  country: e.target.value,
+                })
+              }
             />
             <input
               type="text"
-              name="lastName"
-              placeholder="Last Name"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 "
-              onChange={handleChange}
+              placeholder="Phone"
+              className="w-full p-3 border rounded-lg"
+              required
+              value={shippingAddress.phone}
+              onChange={(e) =>
+                setShippingAddress({
+                  ...shippingAddress,
+                  phone: e.target.value,
+                })
+              }
             />
           </div>
 
-          {/* Address */}
-          <input
-            type="text"
-            name="address"
-            value={shippingAddress.address}
-            required
-            placeholder="Address"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 "
-            onChange={handleChange}
-          />
-
-          {/* City & Postal Code */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 "
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="postalCode"
-              placeholder="Postal Code"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 "
-              onChange={handleChange}
-            />
+          {/* Buttons */}
+          <div className="pt-4">
+            {!checkoutId ? (
+              <button
+                type="submit"
+                className="w-full bg-black hover:bg-gray-900 text-white py-3 rounded-lg font-medium transition"
+              >
+                Continue to Payment
+              </button>
+            ) : (
+              <div className="pt-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                  Payment
+                </h3>
+                <Elements stripe={stripePromise}>
+                  <StripePaymentForm
+                    amount={cart.totalPrice}
+                    onSuccess={handlePaymentSuccess}
+                  />
+                </Elements>
+              </div>
+            )}
           </div>
-
-          {/* Country - AntD Select */}
-          <Select
-            placeholder="Select Country"
-            style={{ width: "100%", borderRadius: "8px" }}
-            onChange={handleCountryChange}
-            dropdownStyle={{ borderRadius: "10px", border: "1px solid gray" }}
-          >
-            {countries.map((c, i) => (
-              <Option key={i} value={c}>
-                {c}
-              </Option>
-            ))}
-          </Select>
-
-          {/* Phone */}
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-black"
-            onChange={handleChange}
-          />
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-all"
-          >
-            Place Order
-          </button>
         </form>
       </div>
 
-      {/* Right Section - Cart Summary */}
-      <div className="bg-white shadow-md rounded-2xl p-6">
-        <h2 className="text-xl font-semibold mb-6">Your Cart</h2>
-        <div className="space-y-4">
-          {cart.products.map((product, i) => (
-            <div key={i} className="flex items-center gap-4 border-b pb-4">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-16 h-16 rounded-md object-cover"
-              />
-              <div className="flex-1">
-                <p className="font-medium">{product.name}</p>
-                <p className="text-sm text-gray-500">
-                  Size: {product.size}, Color: {product.color}
-                </p>
+      {/* Right Section */}
+      <div className="bg-white rounded-lg shadow-md p-8 border">
+        <h3 className="text-xl font-bold text-gray-800 mb-6 border-b pb-3">
+          Order Summary
+        </h3>
+        <div className="space-y-4 mb-6">
+          {cart.products.map((product, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between border-b pb-4"
+            >
+              <div className="flex items-center gap-4">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div>
+                  <h4 className="font-medium text-gray-800">
+                    {product.name}
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {product.size} / {product.color}
+                  </p>
+                </div>
               </div>
-              <p className="font-semibold">${product.price}</p>
+              <p className="font-medium text-gray-800">
+                ${product.price.toLocaleString()}
+              </p>
             </div>
           ))}
         </div>
-        <div className="flex justify-between items-center mt-6 text-lg font-semibold">
-          <span>Total:</span>
-          <span>${cart.totalPrice}</span>
+        <div className="space-y-2 text-lg">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Subtotal</span>
+            <span>${cart.totalPrice.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Shipping</span>
+            <span className="text-emerald-600 font-medium">Free</span>
+          </div>
+          <div className="flex justify-between border-t pt-4 font-semibold text-gray-900">
+            <span>Total</span>
+            <span>${cart.totalPrice.toLocaleString()}</span>
+          </div>
         </div>
       </div>
     </div>
