@@ -9,8 +9,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import CollectionPage from "./pages/CollectionPage";
 import ProductDetails from "./components/Products/ProductDetails";
-import CheckOut from "./components/Cart/Checkout"
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import Checkout from "./components/Cart/Checkout";
 
 
 const stripePromise = loadStripe("pk_test_51S6dXOFYVtn3P4ApL7GP10blKsJx2HQQxgsmNizNitzsXzFSZjvzJTxlPyKXEB0k8PXoKwg3KbQWnNupPyVVwwdz00bMp0LB3r");
@@ -28,7 +28,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/collection/all" element={<CollectionPage />} />
           <Route path="product/:id" element={<ProductDetails />} />
-          <Route path="/checkout" element={<Elements stripe={stripePromise}><CheckOut /></Elements>}/>
+          <Route path="/checkout" element={<Elements stripe={stripePromise}><Checkout /></Elements>}/>
           <Route path="/order-confirmation" element={<OrderConfirmationPage/>}></Route>
         </Route>
       </Routes>
